@@ -4,8 +4,9 @@ const User = require('../auth/auth-model')
 const { tokenMaker } = require('../../secrets')
 const checkUserExists = require('../middleware/checkUserExists')
 const checkUsername = require('../middleware/checkUsername')
+const checkCredentials = require('../middleware/checkCredentials')
 
-router.post('/register',checkUserExists,async (req, res,next) => {
+router.post('/register',checkCredentials,checkUserExists,async (req, res,next) => {
 
   /*
     IMPLEMENT
@@ -46,7 +47,7 @@ router.post('/register',checkUserExists,async (req, res,next) => {
 
 });
 
-router.post('/login',checkUsername, (req, res,next) => {
+router.post('/login',checkCredentials,checkUsername, (req, res,next) => {
  
   /*
     IMPLEMENT

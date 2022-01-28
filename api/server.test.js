@@ -14,26 +14,36 @@ afterAll(async()=>{
   await db.destroy()
 })
 
-describe('POST /register',() => {
-  let res
-  beforeEach(async() => {
-    res = await request(server)
+describe('POST /api/auth/register',() => {
+  
+  test('[1] returns a new user with status 201',async () => {
+    const res = await request(server)
     .post('/api/auth/register')
     .send({username:'foo',password:'bar'})
-  })
 
-  test('[1] returns a new user with status 201',() => {
     expect(res.status).toBe(201)
     expect(res.body).toMatchObject({username: "foo"})
   })
 
-  test('[2] returns error message on Invalid username',()=> {
+  test('[2] returns error message on Invalid username',async ()=> {
+    const res = await request(server)
+    .post('/api/auth/register')
+    .send({username:'foo',password:'bar'})
     expect(res.status).toBe(400)
     expect(res.body.message).toBe("username taken")
   })
+
+  test('[3] returns error message on missing username or password',async()=> {
+    const resp = await request(server)
+    .post('/api/auth/register')
+    .send({username:'',password:''})
+
+    expect(resp.status).toBe(400)
+    expect(resp.body.message).toMatch(/username and password required/i)
+  })
 })
 
-describe('POST /login',() => {
+describe('POST /api/auth/login',() => {
  
   test('[1] returns user welcome message',async() => {
     const res = await request(server).post('/api/auth/login')
@@ -49,6 +59,15 @@ describe('POST /login',() => {
 
     expect(res.status).toBe(401)
     expect(res.body.message).toBe("invalid credentials")
+  })
+
+  test('[3] returns error message on missing username or password',async()=> {
+    const res = await request(server)
+    .post('/api/auth/login')
+    .send({username:'',password:''})
+
+    expect(res.status).toBe(400)
+    expect(res.body.message).toMatch(/username and password required/i)
   })
 })
 
