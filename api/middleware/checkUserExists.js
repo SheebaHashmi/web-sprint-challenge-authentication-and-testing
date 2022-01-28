@@ -7,7 +7,7 @@ const checkUserExists = async (req,res,next) => {
            next()
         }
         else{
-            next({status:401,message:"username taken"})
+            next({status:400,message:"username taken"})
         }
    
 }

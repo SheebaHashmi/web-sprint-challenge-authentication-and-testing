@@ -23,6 +23,14 @@ describe('POST /register',() => {
     expect(res.status).toBe(201)
     expect(res.body).toMatchObject({username: "foo"})
   })
+  test('returns error message on Invalid username', async()=> {
+    const res = await request(server)
+    .post('/api/auth/register')
+    .send({username:'foo',password:'bar'})
+
+    expect(res.status).toBe(400)
+    expect(res.body.message).toBe("username taken")
+  })
 })
 
 describe('POST /login',() => {
@@ -34,6 +42,14 @@ describe('POST /login',() => {
     expect(res.status).toBe(200)
     expect(res.body).toMatchObject({message:"welcome, foo"})
   })
+
+  test("returns error on Invalid credientials",async ()=> {
+    const res = await request(server).post('/api/auth/login')
+    .send({username:'fiz',password:"bar"})
+
+    expect(res.status).toBe(401)
+    expect(res.body.message).toBe("invalid credentials")
+  })
 })
 
 describe('GET restricted /jokes', () => {
@@ -41,6 +57,6 @@ describe('GET restricted /jokes', () => {
     const res = await request(server)
     .get('/api/jokes')
     
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(401)
   })
 })
