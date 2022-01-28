@@ -22,7 +22,6 @@ describe('POST /register',() => {
 
     expect(res.status).toBe(201)
     expect(res.body).toMatchObject({username: "foo"})
-    
   })
 })
 

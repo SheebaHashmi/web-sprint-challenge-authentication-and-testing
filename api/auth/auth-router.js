@@ -2,8 +2,9 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs')
 const User = require('../auth/auth-model')
 const checkUserExists = require('../middleware/checkUserExists')
+const checkUsername = require('../middleware/checkUsername')
 
-router.post('/register', (req, res,next) => {
+router.post('/register',checkUserExists,async (req, res,next) => {
 
   /*
     IMPLEMENT
@@ -30,15 +31,21 @@ router.post('/register', (req, res,next) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
- let {username,password} = req.body
- const hash = bcrypt.hashSync(password,8)
- User.add({username, password: hash})
- .then(newUser => res.status(201).json(newUser))
- .catch(next)
+ try{
+   let {username,password} = req.body
+   const hash = bcrypt.hashSync(password,8)
+
+   const newUser = await User.add({username, password: hash})
+   res.status(201).json(newUser)
+ }
+ catch(err){
+   next(err)
+ }
+
 
 });
 
-router.post('/login',checkUserExists, (req, res,next) => {
+router.post('/login',checkUsername, (req, res,next) => {
  
   /*
     IMPLEMENT
@@ -65,7 +72,6 @@ router.post('/login',checkUserExists, (req, res,next) => {
   */
  let {username,password} = req.body
  try{
-
    if(bcrypt.compareSync(password, req.user.password)){
      res.json({message: `welcome, ${username}`})
    }
