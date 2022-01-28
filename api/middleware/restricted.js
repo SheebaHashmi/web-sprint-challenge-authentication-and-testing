@@ -20,7 +20,7 @@ const restricted = (req, res, next) => {
   else{
     jwt.verify(token,JWT_SECRET,(err,decoded) => {
       if(err){
-        next({status:401, message:"token invalid"})
+        next({status:403, message:"token invalid"})
       }
       req.decodedJwt = decoded
       next()

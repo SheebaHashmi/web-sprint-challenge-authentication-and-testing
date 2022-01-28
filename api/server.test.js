@@ -15,19 +15,19 @@ afterAll(async()=>{
 })
 
 describe('POST /register',() => {
-  test('returns a new user with status 201',async () => {
-    const res = await request(server)
+  let res
+  beforeEach(async() => {
+    res = await request(server)
     .post('/api/auth/register')
     .send({username:'foo',password:'bar'})
+  })
 
+  test('[1] returns a new user with status 201',() => {
     expect(res.status).toBe(201)
     expect(res.body).toMatchObject({username: "foo"})
   })
-  test('returns error message on Invalid username', async()=> {
-    const res = await request(server)
-    .post('/api/auth/register')
-    .send({username:'foo',password:'bar'})
 
+  test('[2] returns error message on Invalid username',()=> {
     expect(res.status).toBe(400)
     expect(res.body.message).toBe("username taken")
   })
@@ -35,7 +35,7 @@ describe('POST /register',() => {
 
 describe('POST /login',() => {
  
-  test('Succeful login',async() => {
+  test('[1] returns user welcome message',async() => {
     const res = await request(server).post('/api/auth/login')
     .send({username:'foo',password:"bar"})
 
@@ -43,7 +43,7 @@ describe('POST /login',() => {
     expect(res.body).toMatchObject({message:"welcome, foo"})
   })
 
-  test("returns error on Invalid credientials",async ()=> {
+  test("[2] returns error on Invalid credientials",async ()=> {
     const res = await request(server).post('/api/auth/login')
     .send({username:'fiz',password:"bar"})
 
@@ -53,20 +53,19 @@ describe('POST /login',() => {
 })
 
 describe('GET restricted /jokes', () => {
-  test('returns Unauthorized status code',async () => {
+  test('[1] returns Unauthorized status code',async () => {
     const res = await request(server)
     .get('/api/jokes')
     
     expect(res.status).toBe(401)
+    expect(res.body.message).toMatch(/token required/i)
   })
-  test('returns jokes on authorized login', async() => {
+  test('[2] returns jokes on authorized login', async() => {
    
     const res = await request(server)
     .post('/api/auth/login')
     .send({username:'foo',password:"bar"})
     
-
-
     const jokes = await request(server)
       .get('/api/jokes')
       .set("Authorization",res.body.token)
@@ -74,5 +73,14 @@ describe('GET restricted /jokes', () => {
     expect(jokes.status).toBe(200)
     expect(jokes.body[0]).toHaveProperty("id")
     expect(jokes.body[0]).toHaveProperty("joke")
+  })
+
+  test('[3] returns Invalid token error', async() => {
+    const res = await request(server)
+      .get('/api/jokes')
+      .set("Authorization","I am the invalid token")
+
+    expect(res.status).toBe(403)
+    expect(res.body.message).toMatch(/token invalid/i)
   })
 })
