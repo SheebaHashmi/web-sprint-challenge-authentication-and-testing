@@ -1,7 +1,10 @@
 const router = require('express').Router();
+const bcrypt = require('bcryptjs')
+const User = require('../auth/auth-model')
+const checkUserExists = require('../middleware/checkUserExists')
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
+router.post('/register', (req, res,next) => {
+
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -27,10 +30,16 @@ router.post('/register', (req, res) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
+ let {username,password} = req.body
+ const hash = bcrypt.hashSync(password,8)
+ User.add({username, password: hash})
+ .then(newUser => res.status(201).json(newUser))
+ .catch(next)
+
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+router.post('/login',checkUserExists, (req, res,next) => {
+ 
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -54,6 +63,18 @@ router.post('/login', (req, res) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
+ let {username,password} = req.body
+ try{
+
+   if(bcrypt.compareSync(password, req.user.password)){
+     res.json({message: `welcome, ${username}`})
+   }
+ }
+ catch(err){
+   next(err)
+ }
+
+
 });
 
 module.exports = router;

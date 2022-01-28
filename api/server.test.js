@@ -15,27 +15,25 @@ afterAll(async()=>{
 })
 
 describe('POST /register',() => {
-  test('returns a new user with status 200',async () => {
+  test('returns a new user with status 201',async () => {
     const res = await request(server)
     .post('/api/auth/register')
     .send({username:'foo',password:'bar'})
 
     expect(res.status).toBe(201)
-    expect(res.body).toHaveProperty("username","foo")
-    expect(res.body).toHaveProperty("password","bar")
+    expect(res.body).toMatchObject({username: "foo"})
+    
   })
 })
 
 describe('POST /login',() => {
+ 
   test('Succeful login',async() => {
-    const res = await request(server)
-    .post('/api/auth/register')
-    .send({username:'foo',password:'bar'})
+    const res = await request(server).post('/api/auth/login')
+    .send({username:'foo',password:"bar"})
 
-    request(server).post('/api/auth/login')
-    .send({username:'foo',password:'bar'})
-
-    expect(res.body.message).toBe("welcome, foo")
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({message:"welcome, foo"})
   })
 })
 
