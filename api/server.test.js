@@ -53,10 +53,25 @@ describe('POST /login',() => {
 })
 
 describe('GET restricted /jokes', () => {
-  test('Unauthorized access',async () => {
+  test('returns Unauthorized status code',async () => {
     const res = await request(server)
     .get('/api/jokes')
     
     expect(res.status).toBe(401)
+  })
+  test('returns jokes on authorized login', async() => {
+   
+    const res = await request(server)
+    .post('/api/auth/login')
+    .send({username:'foo',password:"bar"})
+    
+
+
+    const login = await request(server)
+      .post('/api/auth/login')
+      .send({username:'foo',password:"bar"})
+      .set("Authorization",res.body.token)
+
+    expect(login.status).toBe(200)
   })
 })
