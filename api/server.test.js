@@ -67,11 +67,12 @@ describe('GET restricted /jokes', () => {
     
 
 
-    const login = await request(server)
-      .post('/api/auth/login')
-      .send({username:'foo',password:"bar"})
+    const jokes = await request(server)
+      .get('/api/jokes')
       .set("Authorization",res.body.token)
 
-    expect(login.status).toBe(200)
+    expect(jokes.status).toBe(200)
+    expect(jokes.body[0]).toHaveProperty("id")
+    expect(jokes.body[0]).toHaveProperty("joke")
   })
 })
