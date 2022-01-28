@@ -4,7 +4,6 @@ const User = require('../auth/auth-model')
 const { tokenMaker } = require('../../secrets')
 const checkUserExists = require('../middleware/checkUserExists')
 const checkUsername = require('../middleware/checkUsername')
-const checkPassword = require('../middleware/checkPassword')
 const checkCredentials = require('../middleware/checkCredentials')
 
 router.post('/register',checkCredentials,checkUserExists,async (req, res,next) => {
@@ -48,7 +47,7 @@ router.post('/register',checkCredentials,checkUserExists,async (req, res,next) =
 
 });
 
-router.post('/login',checkCredentials,checkUsername,checkPassword, (req, res,next) => {
+router.post('/login',checkCredentials,checkUsername,(req, res,next) => {
  
   /*
     IMPLEMENT
@@ -78,6 +77,9 @@ router.post('/login',checkCredentials,checkUsername,checkPassword, (req, res,nex
    if(bcrypt.compareSync(password, req.user.password)){
      const token = tokenMaker(req.user)
      res.json({message: `welcome, ${username}`,token})
+   }
+   else{
+     next({status:400,message:"invalid credentials"})
    }
  }
  catch(err){
